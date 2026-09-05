@@ -34,6 +34,21 @@ input:-webkit-autofill:focus{
 .topActions{display:flex; gap:16px;}
 .gear{font-size:13px; letter-spacing:.08em; text-transform:uppercase; background:none; border:none; color:var(--fg); cursor:pointer; padding:6px 0; font-weight:600;}
 .subhead{color:var(--muted); font-size:13px; letter-spacing:.03em; margin:0 0 26px;}
+.datebtn{background:none; border:none; color:var(--muted); font-size:13px; letter-spacing:.03em; cursor:pointer; padding:4px 0; display:inline-flex; align-items:center; gap:6px;}
+.datebtn .caret{font-size:10px;}
+.card.readonly{cursor:default;}
+
+/* Date picker grid */
+.dpgrid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px;}
+.dpcell{display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 0; border:1.5px solid #e6e6e6; border-radius:10px; background:var(--bg); color:var(--fg); cursor:pointer;}
+.dpcell .wd{font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);}
+.dpcell .dn{font-size:17px; font-weight:600;}
+.dpcell .dot{width:4px; height:4px; border-radius:50%; background:var(--fg);}
+.dpcell.today{border-color:var(--fg);}
+.dpcell.past{opacity:.45;}
+.dpcell.sel{background:var(--fg); color:var(--bg); border-color:var(--fg); opacity:1;}
+.dpcell.sel .wd{color:#bbb;}
+.dpcell.sel .dot{background:var(--bg);}
 
 .cards{display:flex; flex-direction:column; gap:14px; flex:1;}
 .card{
