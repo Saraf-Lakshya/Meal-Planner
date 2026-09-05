@@ -12,6 +12,16 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // If anything throws before React mounts, show it instead of a blank page.
+      window.addEventListener('error', function (e) {
+        var r = document.getElementById('root');
+        if (r && r.childElementCount === 0) {
+          var m = (e && e.message) || (e && e.error) || 'Failed to load a script';
+          r.innerHTML = '<pre style="white-space:pre-wrap;padding:20px;font:13px monospace;color:#000">Startup error:\n' + m + '</pre>';
+        }
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
