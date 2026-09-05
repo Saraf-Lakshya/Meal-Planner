@@ -27,7 +27,9 @@ function previousDayMeals(history) {
 }
 
 // Most common meal for this slot on the target weekday, if seen >= 2 times.
+// Recommendations only start once at least 3 days have been logged.
 export function pattern(history, slot, weekday) {
+  if (history.length < 3) return null
   const counts = {}
   history.forEach((e) => {
     if (e.weekday === weekday && e[slot]) counts[e[slot]] = (counts[e[slot]] || 0) + 1
