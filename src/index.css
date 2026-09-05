@@ -46,6 +46,8 @@ input:-webkit-autofill:focus{
 .datebtn{background:none; border:none; color:var(--muted); font-size:13px; letter-spacing:.03em; cursor:pointer; padding:4px 0; display:inline-flex; align-items:center; gap:6px;}
 .datebtn .caret{font-size:10px;}
 .card.readonly{cursor:default;}
+.card.editing{justify-content:flex-start; cursor:default;}
+.card.editing .editwrap{margin-top:8px;}
 
 /* Date picker grid */
 .dpgrid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px;}

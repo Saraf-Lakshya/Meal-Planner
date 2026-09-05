@@ -362,12 +362,14 @@ function Card({ slot, p, hasMeals, pat, weekday, options, readOnly, onToggle, on
     : p.name || (readOnly ? '—' : hasMeals ? 'Regenerate, or type / skip below' : 'Type or skip below')
 
   return (
-    <div className={'card' + (p.locked ? ' locked' : '') + (p.skipped ? ' skipped' : '') + (readOnly ? ' readonly' : '')}
+    <div className={'card' + (p.locked ? ' locked' : '') + (p.skipped ? ' skipped' : '') + (readOnly ? ' readonly' : '') + (editing ? ' editing' : '')}
       onClick={() => { if (!editing && !readOnly) onToggle() }}>
       <div className="slot">{LABELS[slot]}</div>
       <div className="row">
-        <div className={'meal' + (p.name && !p.skipped ? '' : ' empty') + (!p.locked && !readOnly ? ' tappable' : '')}
-          onClick={!p.locked && !readOnly ? open : undefined}>{displayText}</div>
+        {!editing && (
+          <div className={'meal' + (p.name && !p.skipped ? '' : ' empty') + (!p.locked && !readOnly ? ' tappable' : '')}
+            onClick={!p.locked && !readOnly ? open : undefined}>{displayText}</div>
+        )}
         {p.locked && <div className="lockmark">{p.skipped ? 'Skipped ✓' : 'Locked ✓'}</div>}
       </div>
       {pat && !p.locked && !readOnly && <div className="hint">You usually have {pat.name} on {DAYS[weekday]}s</div>}
