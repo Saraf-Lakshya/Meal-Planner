@@ -19,8 +19,21 @@ export function pretty(d) {
   return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}`
 }
 
-// The single most recent confirmed day = "the previous day" for no-repeat.
-function previousDayMeals(history) {
+// ISO date of the calendar day before the given one.
+function prevIso(dateIso) {
+  const [y, m, d] = dateIso.split('-').map(Number)
+  const dt = new Date(y, m - 1, d)
+  dt.setDate(dt.getDate() - 1)
+  return iso(dt)
+}
+
+// Meals eaten on the calendar day BEFORE the target (for the no-repeat rule).
+// Falls back to the most recent confirmed day when no target is given.
+function previousDayMeals(history, targetIso) {
+  if (targetIso) {
+    const row = history.find((e) => e.date === prevIso(targetIso))
+    return row ? { breakfast: row.breakfast, lunch: row.lunch, dinner: row.dinner } : {}
+  }
   if (!history.length) return {}
   const last = history[history.length - 1]
   return { breakfast: last.breakfast, lunch: last.lunch, dinner: last.dinner }
@@ -41,11 +54,11 @@ export function pattern(history, slot, weekday) {
 
 // Pick one meal name for a slot. `picks` is the in-progress selection (to avoid
 // duplicating a meal across two slots on the same day).
-export function pick(slot, { meals, history, picks, weekday }) {
+export function pick(slot, { meals, history, picks, weekday, targetIso }) {
   const list = meals.filter((m) => m.slot === slot)
   if (!list.length) return null
 
-  const prev = previousDayMeals(history)[slot]
+  const prev = previousDayMeals(history, targetIso)[slot]
   const taken = {}
   SLOTS.forEach((s) => { if (s !== slot && picks[s] && picks[s].name) taken[picks[s].name] = true })
 

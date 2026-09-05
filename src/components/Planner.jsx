@@ -22,6 +22,9 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
   const [copied, setCopied] = useState(false)
   const [showResume, setShowResume] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState('')
+  const [manualText, setManualText] = useState('')
 
   const todayIso = iso(midnight(new Date()))
   const tomorrowIso = iso(tomorrow())
@@ -58,75 +61,77 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
 
   function persist(next) {
     if (isPast) return
+    if (history.some((r) => r.date === tIso)) return // never auto-overwrite a confirmed day
     const anyLock = SLOTS.some((s) => next[s].locked)
     if (anyLock) daysApi.saveDraft(tIso, weekday, next)
     else if (draft && draft.date === tIso) daysApi.discardDraft(tIso)
   }
 
-  function touch() { setConfirmed(false); setCopied(false) }
+  function touch() { setConfirmed(false); setCopied(false); setErr(''); setManualText('') }
 
   function selectDate(d) {
     setTarget(midnight(d))
     applyLoadFor(iso(d))
     setPickerOpen(false)
-    setCopied(false)
+    setCopied(false); setErr(''); setManualText(''); setSaving(false)
   }
 
+  // Handlers compute the next picks, then set state and persist separately
+  // (never side-effect inside a setState updater).
   function regenerate() {
     if (isPast) return
     touch()
-    setPicks((prev) => {
-      const work = { ...prev }
-      SLOTS.forEach((s) => {
-        if (!prev[s].locked) work[s] = { name: pick(s, { meals, history, picks: work, weekday }), locked: false, skipped: false }
-      })
-      persist(work)
-      return work
+    const work = { ...picks }
+    SLOTS.forEach((s) => {
+      if (!picks[s].locked) work[s] = { name: pick(s, { meals, history, picks: work, weekday, targetIso: tIso }), locked: false, skipped: false }
     })
+    setPicks(work)
+    persist(work)
   }
 
   function toggleLock(slot) {
     if (isPast) return
     touch()
-    setPicks((prev) => {
-      const cur = prev[slot]
-      let next
-      if (cur.locked) {
-        next = { ...prev, [slot]: { name: cur.skipped ? null : cur.name, locked: false, skipped: false } }
-      } else {
-        if (!cur.name) return prev
-        next = { ...prev, [slot]: { ...cur, locked: true, skipped: false } }
-      }
-      persist(next)
-      return next
-    })
+    const cur = picks[slot]
+    let next
+    if (cur.locked) {
+      next = { ...picks, [slot]: { name: cur.skipped ? null : cur.name, locked: false, skipped: false } }
+    } else {
+      if (!cur.name) return
+      next = { ...picks, [slot]: { ...cur, locked: true, skipped: false } }
+    }
+    setPicks(next)
+    persist(next)
   }
 
   function skip(slot) {
     if (isPast) return
     touch()
-    setPicks((prev) => {
-      const next = { ...prev, [slot]: { name: null, locked: true, skipped: true } }
-      persist(next)
-      return next
-    })
+    const next = { ...picks, [slot]: { name: null, locked: true, skipped: true } }
+    setPicks(next)
+    persist(next)
   }
 
   function setName(slot, name) {
     if (isPast) return
     touch()
-    setPicks((prev) => {
-      const next = { ...prev, [slot]: { name, locked: false, skipped: false } }
-      persist(next)
-      return next
-    })
+    const next = { ...picks, [slot]: { name, locked: false, skipped: false } }
+    setPicks(next)
+    persist(next)
   }
 
   async function confirm() {
-    if (isPast) return
-    for (const s of SLOTS) if (picks[s].name) await mealsApi.ensureMeal(s, picks[s].name)
-    await daysApi.confirmDay(tIso, weekday, picks)
-    setConfirmed(true)
+    if (isPast || saving) return
+    setSaving(true); setErr('')
+    try {
+      for (const s of SLOTS) if (picks[s].name) await mealsApi.ensureMeal(s, picks[s].name)
+      await daysApi.confirmDay(tIso, weekday, picks)
+      setConfirmed(true)
+    } catch (e) {
+      setErr('Could not save — check your connection and try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   function copyPlan() {
@@ -134,11 +139,12 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
       .filter((s) => picks[s].name)
       .map((s) => `${LABELS[s]} - ${picks[s].name}`)
       .join('\n')
-    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 1600) }
+    const ok = () => { setManualText(''); setCopied(true); setTimeout(() => setCopied(false), 1600) }
+    const fail = () => setManualText(text)
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done))
+      navigator.clipboard.writeText(text).then(ok).catch(() => fallbackCopy(text, ok, fail))
     } else {
-      fallbackCopy(text, done)
+      fallbackCopy(text, ok, fail)
     }
   }
 
@@ -167,9 +173,10 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
     actionLabel = 'View only'
     actionDisabled = true
   } else if (allLocked) {
-    actionLabel = 'Confirm Selections'
+    actionLabel = saving ? 'Saving…' : 'Confirm Selections'
     actionClass = 'action confirm'
     actionFn = confirm
+    actionDisabled = saving
   } else {
     actionLabel = 'Regenerate'
     actionFn = regenerate
@@ -204,12 +211,19 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
 
       <button className={actionClass} disabled={actionDisabled} onClick={actionFn}>{actionLabel}</button>
       <div className="foot">
-        {confirmed && !isPast && (
+        {err && <span className="errmsg">{err}</span>}
+        {!err && confirmed && !isPast && (
           <>Saved for {pretty(target)} ✓ &nbsp;·&nbsp; <button className="linkbtn" onClick={planAgain}>Plan again</button></>
         )}
-        {confirmed && isPast && <>Confirmed plan · view only</>}
-        {isPast && !confirmed && <>No plan was logged for this day</>}
+        {!err && confirmed && isPast && <>Confirmed plan · view only</>}
+        {!err && isPast && !confirmed && <>No plan was logged for this day</>}
       </div>
+      {manualText && (
+        <div className="manualcopy">
+          <p>Couldn’t copy automatically — long-press to select, then copy:</p>
+          <textarea readOnly rows={3} value={manualText} onFocus={(e) => e.target.select()} />
+        </div>
+      )}
 
       {pickerOpen && (
         <DatePicker target={target} todayIso={todayIso} plannedSet={plannedSet}
@@ -245,7 +259,7 @@ function DatePicker({ target, todayIso, plannedSet, onPick, onClose }) {
     <div className="modal show" onClick={onClose}>
       <div className="modalcard" onClick={(e) => e.stopPropagation()}>
         <h3>Pick a day</h3>
-        <p>Any day within a week. Past days are view-only.</p>
+        <p>Up to a week back or ahead. Past days are view-only.</p>
         <div className="dpgrid">
           {days.map((d) => {
             const di = iso(d)
@@ -264,20 +278,29 @@ function DatePicker({ target, todayIso, plannedSet, onPick, onClose }) {
   )
 }
 
-function fallbackCopy(text, done) {
+function fallbackCopy(text, done, fail) {
   try {
     const ta = document.createElement('textarea')
     ta.value = text
+    ta.contentEditable = 'true'
+    ta.readOnly = false
     ta.style.position = 'fixed'
+    ta.style.top = '0'
+    ta.style.left = '0'
     ta.style.opacity = '0'
     document.body.appendChild(ta)
-    ta.focus()
-    ta.select()
-    document.execCommand('copy')
+    const range = document.createRange()
+    range.selectNodeContents(ta)
+    const sel = window.getSelection()
+    sel.removeAllRanges()
+    sel.addRange(range)
+    ta.setSelectionRange(0, text.length)
+    const okCmd = document.execCommand('copy')
     document.body.removeChild(ta)
-    done()
+    if (okCmd) done()
+    else fail()
   } catch (e) {
-    /* clipboard unavailable */
+    fail()
   }
 }
 

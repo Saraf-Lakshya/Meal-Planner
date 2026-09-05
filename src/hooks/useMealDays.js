@@ -7,10 +7,12 @@ export function useMealDays(userId) {
   const [history, setHistory] = useState([])
   const [draft, setDraft] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   const fetchDays = useCallback(async () => {
     if (!userId) { setLoading(false); return }
     setLoading(true)
+    setLoadError(false)
     const { data, error } = await supabase
       .from('meal_days')
       .select('*')
@@ -21,6 +23,8 @@ export function useMealDays(userId) {
       setHistory(rows.filter((r) => r.status === 'confirmed'))
       const drafts = rows.filter((r) => r.status === 'draft')
       setDraft(drafts.length ? drafts[drafts.length - 1] : null)
+    } else {
+      setLoadError(true)
     }
     setLoading(false)
   }, [userId])
@@ -75,5 +79,5 @@ export function useMealDays(userId) {
     return data
   }, [userId])
 
-  return { history, draft, loading, saveDraft, discardDraft, confirmDay, refetch: fetchDays }
+  return { history, draft, loading, loadError, saveDraft, discardDraft, confirmDay, refetch: fetchDays }
 }

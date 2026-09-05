@@ -1,5 +1,5 @@
 :root{
-  --bg:#ffffff; --fg:#000000; --muted:#8a8a8a; --line:#000000;
+  --bg:#ffffff; --fg:#000000; --muted:#6b6b6b; --line:#000000;
   --lockbg:#000000; --lockfg:#ffffff; --radius:14px;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -92,6 +92,17 @@ input:-webkit-autofill:focus{
 @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(.985);}}
 @media (prefers-reduced-motion: reduce){ .action.confirm{animation:none;} }
 .foot{text-align:center; color:var(--muted); font-size:11px; margin-top:14px; letter-spacing:.04em; min-height:14px;}
+.errmsg{color:var(--fg); font-weight:600; font-size:12px; letter-spacing:.02em;}
+
+/* Manual-copy fallback (when the clipboard is blocked) */
+.manualcopy{margin-top:12px;}
+.manualcopy p{margin:0 0 6px; font-size:12px; color:var(--muted);}
+.manualcopy textarea{width:100%; padding:11px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:15px; background:var(--bg); color:var(--fg); resize:none; font-family:inherit;}
+
+/* Error / retry screen */
+.errbox{width:100%; max-width:340px; display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center;}
+.errtitle{font-weight:600; margin:6px 0 0;}
+.errnote{color:var(--muted); font-size:14px; margin:0; line-height:1.5;}
 
 /* Manage screen */
 .backbtn{align-self:flex-start; background:none; border:none; font-size:13px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; padding:6px 0; margin-bottom:14px; color:var(--fg);}

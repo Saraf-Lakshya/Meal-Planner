@@ -5,16 +5,19 @@ import { supabase } from '../lib/supabase'
 export function useMeals(userId) {
   const [meals, setMeals] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
   const fetchMeals = useCallback(async () => {
     if (!userId) { setLoading(false); return }
     setLoading(true)
+    setLoadError(false)
     const { data, error } = await supabase
       .from('meals')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: true })
     if (!error) setMeals(data ?? [])
+    else setLoadError(true)
     setLoading(false)
   }, [userId])
 
@@ -58,5 +61,5 @@ export function useMeals(userId) {
     if (!error) setMeals((prev) => prev.filter((x) => x.id !== id))
   }, [userId])
 
-  return { meals, loading, addMeal, ensureMeal, toggleRepeat, deleteMeal, refetch: fetchMeals }
+  return { meals, loading, loadError, addMeal, ensureMeal, toggleRepeat, deleteMeal, refetch: fetchMeals }
 }
