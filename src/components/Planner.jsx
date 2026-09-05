@@ -181,7 +181,7 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
   return (
     <div className="wrap">
       <div className="topbar">
-        <h1 className="brand">Tomorrow</h1>
+        <h1 className="brand">Kal Kya Banega</h1>
         <div className="topActions">
           <button className="gear" onClick={() => setView('manage')}>Meals</button>
           <button className="gear" onClick={signOut}>Sign out</button>

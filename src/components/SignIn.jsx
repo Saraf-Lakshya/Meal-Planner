@@ -36,7 +36,7 @@ export default function SignIn() {
   return (
     <div className="screen center">
       <form className="auth" onSubmit={submit}>
-        <h1 className="brand big">Tomorrow</h1>
+        <h1 className="brand big">Kal Kya Banega</h1>
         <p className="authsub">{mode === 'in' ? 'Sign in to your meals' : 'Create your account'}</p>
         <input className="field" type="email" placeholder="Email" value={email}
           onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
