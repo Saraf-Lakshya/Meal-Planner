@@ -11,6 +11,14 @@ body{
 }
 input{font-family:inherit;}
 button{font-family:inherit;}
+/* Keep browser autofill on-brand (no yellow box). */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 1000px var(--bg) inset;
+  -webkit-text-fill-color:var(--fg);
+  caret-color:var(--fg);
+}
 
 .wrap{
   max-width:520px; margin:0 auto; min-height:100vh;
