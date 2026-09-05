@@ -311,7 +311,8 @@ function Card({ slot, p, hasMeals, pat, weekday, options, readOnly, onToggle, on
       onClick={() => { if (!editing && !readOnly) onToggle() }}>
       <div className="slot">{LABELS[slot]}</div>
       <div className="row">
-        <div className={'meal' + (p.name && !p.skipped ? '' : ' empty')}>{displayText}</div>
+        <div className={'meal' + (p.name && !p.skipped ? '' : ' empty') + (!p.locked && !readOnly ? ' tappable' : '')}
+          onClick={!p.locked && !readOnly ? open : undefined}>{displayText}</div>
         {p.locked && <div className="lockmark">{p.skipped ? 'Skipped ✓' : 'Locked ✓'}</div>}
       </div>
       {pat && !p.locked && !readOnly && <div className="hint">You usually have {pat.name} on {DAYS[weekday]}s</div>}
