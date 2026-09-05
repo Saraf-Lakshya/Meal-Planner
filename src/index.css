@@ -1,6 +1,14 @@
 :root{
   --bg:#ffffff; --fg:#000000; --muted:#6b6b6b; --line:#000000;
   --lockbg:#000000; --lockfg:#ffffff; --radius:14px;
+  --hair:#eeeeee; --cell:#e6e6e6; --lockslot:#bdbdbd; --skip:#9a9a9a;
+  --ddactive:#f2f2f2; --modalp:#444444; --selwd:#bbbbbb;
+}
+:root[data-theme="dark"]{
+  --bg:#000000; --fg:#ffffff; --muted:#9a9a9a; --line:#ffffff;
+  --lockbg:#ffffff; --lockfg:#000000;
+  --hair:#242424; --cell:#333333; --lockslot:#555555; --skip:#666666;
+  --ddactive:#151515; --modalp:#bbbbbb; --selwd:#555555;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{margin:0; min-height:100%;}
@@ -31,7 +39,8 @@ input:-webkit-autofill:focus{
 .brand{font-size:15px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin:0;}
 .brand.big{font-size:22px; letter-spacing:.18em; text-align:center;}
 .topbar{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:2px; gap:10px;}
-.topActions{display:flex; gap:16px;}
+.topActions{display:flex; gap:16px; align-items:center;}
+.themebtn{background:none; border:none; color:var(--fg); cursor:pointer; padding:2px; display:inline-flex; align-items:center; line-height:0;}
 .gear{font-size:13px; letter-spacing:.08em; text-transform:uppercase; background:none; border:none; color:var(--fg); cursor:pointer; padding:6px 0; font-weight:600;}
 .subhead{color:var(--muted); font-size:13px; letter-spacing:.03em; margin:0 0 26px;}
 .datebtn{background:none; border:none; color:var(--muted); font-size:13px; letter-spacing:.03em; cursor:pointer; padding:4px 0; display:inline-flex; align-items:center; gap:6px;}
@@ -40,14 +49,14 @@ input:-webkit-autofill:focus{
 
 /* Date picker grid */
 .dpgrid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px;}
-.dpcell{display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 0; border:1.5px solid #e6e6e6; border-radius:10px; background:var(--bg); color:var(--fg); cursor:pointer;}
+.dpcell{display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 0; border:1.5px solid var(--cell); border-radius:10px; background:var(--bg); color:var(--fg); cursor:pointer;}
 .dpcell .wd{font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);}
 .dpcell .dn{font-size:17px; font-weight:600;}
 .dpcell .dot{width:4px; height:4px; border-radius:50%; background:var(--fg);}
 .dpcell.today{border-color:var(--fg);}
 .dpcell.past{opacity:.45;}
 .dpcell.sel{background:var(--fg); color:var(--bg); border-color:var(--fg); opacity:1;}
-.dpcell.sel .wd{color:#bbb;}
+.dpcell.sel .wd{color:var(--selwd);}
 .dpcell.sel .dot{background:var(--bg);}
 
 .cards{display:flex; flex-direction:column; gap:14px; flex:1;}
@@ -58,7 +67,7 @@ input:-webkit-autofill:focus{
   transition:background .12s ease, color .12s ease; position:relative; user-select:none;
 }
 .card .slot{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted);}
-.card.locked .slot{color:#bdbdbd;}
+.card.locked .slot{color:var(--lockslot);}
 .card .meal{font-size:24px; font-weight:600; margin-top:8px; word-break:break-word;}
 .card .meal.empty{font-size:16px; font-weight:400; color:var(--muted);}
 .card.locked{background:var(--lockbg); color:var(--lockfg); border-color:var(--lockbg);}
@@ -69,7 +78,7 @@ input:-webkit-autofill:focus{
 /* Minimal icon controls: pencil (type) + skip. */
 .cardicons{display:flex; gap:18px; margin-top:12px;}
 .iconbtn{background:none; border:none; font-size:22px; line-height:1; color:var(--fg); cursor:pointer; padding:2px 2px;}
-.card.skipped .meal{color:#9a9a9a;}
+.card.skipped .meal{color:var(--skip);}
 
 .editwrap{margin-top:12px;}
 .editrow{display:flex; gap:8px;}
@@ -78,9 +87,9 @@ input:-webkit-autofill:focus{
 
 /* Autocomplete dropdown of existing meals. */
 .dropdown{display:flex; flex-direction:column; margin-top:8px; border:1.5px solid var(--line); border-radius:10px; overflow:hidden;}
-.dditem{text-align:left; background:var(--bg); color:var(--fg); border:none; border-bottom:1px solid #eee; padding:11px 12px; font-size:15px; cursor:pointer;}
+.dditem{text-align:left; background:var(--bg); color:var(--fg); border:none; border-bottom:1px solid var(--hair); padding:11px 12px; font-size:15px; cursor:pointer;}
 .dditem:last-child{border-bottom:none;}
-.dditem:active{background:#f2f2f2;}
+.dditem:active{background:var(--ddactive);}
 
 .action{
   margin-top:22px; width:100%; padding:18px; border-radius:var(--radius);
@@ -108,7 +117,7 @@ input:-webkit-autofill:focus{
 .backbtn{align-self:flex-start; background:none; border:none; font-size:13px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; cursor:pointer; padding:6px 0; margin-bottom:14px; color:var(--fg);}
 .catblock{margin-top:20px;}
 .catlabel{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
-.mealitem{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #eee;}
+.mealitem{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--hair);}
 .mealitem .name{flex:1; font-size:16px; word-break:break-word;}
 .rep{font-size:10px; letter-spacing:.1em; text-transform:uppercase; border:1px solid var(--line); border-radius:20px; padding:4px 9px; cursor:pointer; background:none; color:var(--fg); white-space:nowrap;}
 .rep.on{background:var(--fg); color:var(--bg);}
@@ -130,7 +139,7 @@ input:-webkit-autofill:focus{
 .modal{position:fixed; inset:0; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; padding:24px; z-index:50;}
 .modalcard{background:var(--bg); border:1.5px solid var(--fg); border-radius:var(--radius); padding:24px; max-width:360px; width:100%;}
 .modalcard h3{margin:0 0 8px; font-size:16px; letter-spacing:.06em; text-transform:uppercase;}
-.modalcard p{margin:0 0 18px; color:#444; font-size:14px;}
+.modalcard p{margin:0 0 18px; color:var(--modalp); font-size:14px;}
 .modalrow{display:flex; gap:10px;}
 .modalrow button{flex:1; padding:14px; border-radius:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; font-size:13px; cursor:pointer;}
 .btn-primary{background:var(--fg); color:var(--bg); border:none;}

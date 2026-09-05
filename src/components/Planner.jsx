@@ -192,6 +192,7 @@ export default function Planner({ signOut, mealsApi, daysApi }) {
         <div className="topActions">
           <button className="gear" onClick={() => setView('manage')}>Meals</button>
           <button className="gear" onClick={signOut}>Sign out</button>
+          <ThemeToggle />
         </div>
       </div>
       <div className="subhead">
@@ -275,6 +276,37 @@ function DatePicker({ target, todayIso, plannedSet, onPick, onClose }) {
         </div>
       </div>
     </div>
+  )
+}
+
+function ThemeToggle() {
+  const [dark, setDark] = useState(() => document.documentElement.getAttribute('data-theme') === 'dark')
+  function toggle() {
+    const next = dark ? 'light' : 'dark'
+    const root = document.documentElement
+    if (next === 'dark') root.setAttribute('data-theme', 'dark')
+    else root.removeAttribute('data-theme')
+    try { localStorage.setItem('kkb-theme', next) } catch (e) { /* ignore */ }
+    const mc = document.querySelector('meta[name="theme-color"]')
+    if (mc) mc.content = next === 'dark' ? '#000000' : '#ffffff'
+    setDark(!dark)
+  }
+  return (
+    <button className="themebtn" aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} onClick={toggle}>
+      {dark ? (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <line x1="12" y1="2" x2="12" y2="4" /><line x1="12" y1="20" x2="12" y2="22" />
+          <line x1="2" y1="12" x2="4" y2="12" /><line x1="20" y1="12" x2="22" y2="12" />
+          <line x1="4.9" y1="4.9" x2="6.3" y2="6.3" /><line x1="17.7" y1="17.7" x2="19.1" y2="19.1" />
+          <line x1="4.9" y1="19.1" x2="6.3" y2="17.7" /><line x1="17.7" y1="6.3" x2="19.1" y2="4.9" />
+        </svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" />
+        </svg>
+      )}
+    </button>
   )
 }
 
