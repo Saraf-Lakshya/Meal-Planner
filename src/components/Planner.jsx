@@ -319,7 +319,6 @@ function Card({ slot, p, hasMeals, pat, weekday, options, readOnly, onToggle, on
 
       {!p.locked && !editing && !readOnly && (
         <div className="cardicons">
-          <button className="iconbtn" aria-label="Type a meal" title="Type a meal" onClick={open}>✎</button>
           <button className="iconbtn" aria-label="Skip this meal" title="Skip this meal"
             onClick={(e) => { e.stopPropagation(); onSkip() }}>⊘</button>
         </div>
